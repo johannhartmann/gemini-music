@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=64.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "gemini-music"
+version = "0.1.0"
+description = "CLI tool for processing audio files with Gemini AI"
+requires-python = ">=3.7"
+dependencies = [
+    "google-genai>=1.16.1",
+]
+
+[project.scripts]
+gemini-music = "gemini_cli:main"
+
+[tool.setuptools]
+packages = ["gemini_cli"]
