@@ -25,6 +25,22 @@ Then run the CLI with a prompt and a directory containing audio files:
 gemini-music "Describe this audio clip" /path/to/audio/files
 ```
 
+You can also use predefined prompts:
+
+```bash
+# Use built-in analysis prompt
+gemini-music --prompt-type analyze /path/to/audio/files
+
+# Use built-in evaluation prompt  
+gemini-music --prompt-type eval /path/to/audio/files
+
+# Use Suno prompting for music generation
+gemini-music --prompt-type suno /path/to/audio/files
+
+# List all available predefined prompts
+gemini-music --list-prompts
+```
+
 ## Examples
 
 ```bash

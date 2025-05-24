@@ -65,6 +65,35 @@ def process_audio_file(client, file_path: Path, prompt: str) -> str:
         return f"Error processing file {file_path.name}: {str(e)}"
 
 
+def process_audio_file_two_step(client, file_path: Path, step1_prompt: str, step2_prompt: str) -> tuple:
+    """
+    Process a single audio file with a two-step prompt approach.
+    
+    Args:
+        client: The Gemini client instance
+        file_path: Path to the audio file
+        step1_prompt: The first prompt to send with the audio file
+        step2_prompt: The second prompt to process the first result
+        
+    Returns:
+        Tuple of (step1_response, step2_response)
+    """
+    try:
+        # Step 1: Process audio file with first prompt
+        step1_response = process_audio_file(client, file_path, step1_prompt)
+        
+        # Step 2: Process the first response with second prompt (text-only)
+        step2_response = client.models.generate_content(
+            model="gemini-2.5-flash-preview-05-20",
+            contents=[step2_prompt + "\n\nAnalysis to convert:\n" + step1_response]
+        )
+        
+        return step1_response, step2_response.text
+    except Exception as e:
+        error_msg = f"Error processing file {file_path.name}: {str(e)}"
+        return error_msg, error_msg
+
+
 def process_directory(client, directory: Path, prompt: str) -> List[tuple]:
     """
     Process all audio files in a directory.
@@ -85,6 +114,31 @@ def process_directory(client, directory: Path, prompt: str) -> List[tuple]:
         if file_path.is_file() and file_path.suffix.lower() in audio_extensions:
             response = process_audio_file(client, file_path, prompt)
             results.append((file_path.name, response))
+    
+    return results
+
+
+def process_directory_two_step(client, directory: Path, step1_prompt: str, step2_prompt: str) -> List[tuple]:
+    """
+    Process all audio files in a directory using two-step prompts.
+    
+    Args:
+        client: The Gemini client instance
+        directory: Directory containing audio files
+        step1_prompt: The first prompt to send with each audio file
+        step2_prompt: The second prompt to process the first result
+        
+    Returns:
+        List of tuples (filename, (step1_response, step2_response))
+    """
+    results = []
+    # Common audio extensions
+    audio_extensions = {'.mp3', '.wav', '.m4a', '.flac', '.ogg', '.aac'}
+    
+    for file_path in directory.iterdir():
+        if file_path.is_file() and file_path.suffix.lower() in audio_extensions:
+            step1_response, step2_response = process_audio_file_two_step(client, file_path, step1_prompt, step2_prompt)
+            results.append((file_path.name, (step1_response, step2_response)))
     
     return results
 
@@ -196,7 +250,95 @@ Task:
   "overall_recommendation": "",
   "summary_comment": ""
 }
-"""
+""",
+        "suno": {
+            "step1": """You are an expert music analyst AI. Your task is to perform a comprehensive musical analysis of the provided MP3 file. Please break down its characteristics in detail, covering the following aspects. Be as descriptive and specific as possible for each category:
+
+Overall Impression & Core Identity:
+
+Briefly summarize the track's essential sound and feeling in one or two sentences.
+Genre and Subgenre Classification:
+
+Identify the primary genre(s).
+List any secondary genre influences or specific subgenres.
+Provide a brief justification for your genre classifications, citing specific musical elements.
+Mood, Atmosphere, and Evocative Qualities:
+
+Describe the dominant mood(s) (e.g., joyful, melancholic, energetic, introspective, aggressive, dreamy, nostalgic).
+Detail the overall atmosphere or vibe (e.g., cinematic, intimate, futuristic, vintage, raw, polished).
+Include any evocative imagery or feelings the music conjures (e.g., "sounds like a chase scene," "evokes a sense of wonder," "perfect for a rainy day").
+Tempo and Rhythm:
+
+Specify the tempo (estimated BPM).
+Describe the rhythmic feel and complexity (e.g., driving beat, laid-back groove, syncopated, polyrhythmic, straightforward, complex drum patterns, prominent rhythmic motifs).
+Identify the time signature if clearly discernible and noteworthy.
+Key and Tonality:
+
+Identify the primary musical key and mode (e.g., C Major, A Minor, G Dorian).
+Describe the overall tonality (e.g., diatonic, chromatic, atonal, bluesy).
+Harmony and Chord Structure:
+
+Describe the harmonic complexity (e.g., simple, rich, dissonant, consonant, jazz voicings, power chords).
+Mention any notable chord progressions or harmonic characteristics that define the track's sound.
+Instrumentation and Timbre:
+
+List all clearly identifiable instruments.
+For each key instrument, describe its role (e.g., lead melody, rhythmic accompaniment, bassline, harmonic support, atmospheric texture) and its specific timbral qualities (e.g., "distorted and aggressive electric guitar," "warm and resonant acoustic piano," "bright and punchy synth lead," "deep and smooth sub-bass," "crisp and tight drum kit").
+Describe the overall sonic texture (e.g., sparse, dense, layered, transparent, muddy).
+Vocal Characteristics (if applicable):
+
+Describe the vocal presence (e.g., lead vocals, backing vocals, spoken word, ad-libs, instrumental).
+Identify the perceived vocal type/gender and range (e.g., female soprano, male baritone, choir).
+Detail the vocal delivery style (e.g., powerful, delicate, soulful, rapped, whispered, clean, gritty, auto-tuned).
+Mention the presence and style of any vocal harmonies.
+If discernible, note the language of the lyrics.
+Song Structure and Form:
+
+Outline the main sections of the song (e.g., Intro, Verse, Chorus, Bridge, Solo, Outro).
+Describe the overall arrangement and how sections transition.
+Note any unique structural elements or deviations from common forms.
+Dynamics and Energy Contour:
+
+Describe the overall energy level (e.g., high-energy, mellow, builds gradually).
+Detail the dynamic range and any significant shifts in loudness or intensity throughout the track (e.g., "quiet, reflective verses contrasting with loud, expansive choruses," "gradual crescendo into the final section," "sudden drops in intensity").
+Production Style and Effects:
+
+Describe the overall production quality and style (e.g., polished and modern, raw and vintage, lo-fi, minimalist, heavily layered).
+Mention any prominent audio effects used that significantly contribute to the sound (e.g., heavy reverb, delay on vocals, specific synth effects, noticeable compression, filter sweeps).
+Please provide this analysis in a clear, well-organized textual format. Your detailed insights will be used to understand the essence of this music.""",
+            "step2": """You are an AI assistant, an expert musicologist and creative writer, tasked with translating a detailed textual musical profile of an audio file into a rich, evocative, and concise descriptive prompt. This output prompt is specifically designed for the Suno AI music generation model (e.g., version 4.5 or similar). Your primary objective is to generate a single, well-written paragraph of descriptive text, strictly adhering to a maximum length of 1000 characters. This paragraph must capture the musical essence of the analyzed track to effectively guide Suno in generating a new piece of music.
+
+You will be provided with a detailed textual musical profile. This profile will describe various aspects of the music, such as:
+* **Core Musical Attributes:** Tempo (BPM), Key & Mode, Time Signature, Overall Energy Level.
+* **Genre and Style:** Primary and secondary genres, stylistic descriptors.
+* **Mood and Atmosphere:** Dominant moods and atmospheric qualities.
+* **Instrumentation and Timbre:** Predominant instruments with their roles, timbral characteristics, playing styles, and any notable effects.
+* **Vocal Characteristics (if applicable):** Vocal presence, type/gender, delivery style, lyrical themes (if inferable), and harmonies.
+* **Structure and Dynamics:** Overall song structure, key sections, dynamic profile, and rhythmic feel.
+* **Production and Sonic Quality:** Production style, soundstage/mix, and unique sonic signatures.
+
+Your transformation logic should be as follows, drawing from the provided textual profile:
+
+1.  **Genre Synthesis:** From the described genres, identify the primary genre(s). If one genre is clearly dominant, feature it prominently. If multiple genres are highlighted as significant, attempt to describe a blend or fusion (e.g., 'a compelling fusion of synthwave and dark ambient elements,' or 'an indie rock track with strong folk influences'). Use descriptive language that reflects the typical characteristics of these genres as detailed in the input profile. If the profile indicates ambiguity or an eclectic mix, reflect that.
+
+2.  **Mood Articulation:** Synthesize information from the described moods, key/mode, tempo, and energy level to articulate the dominant mood(s). For instance, if the profile states "slow tempo, minor key, melancholic mood," describe it as 'deeply introspective and melancholic.' Leverage Suno's ability to understand nuanced emotional descriptions by using evocative adjectives based on the input.
+
+3.  **Instrumentation Description:** Based on the listed instruments and their characteristics, describe the core instrumentation. Use vivid adjectives and specify instrument roles or sonic qualities as provided (e.g., 'haunting piano melodies providing a delicate counterpoint to a gritty, distorted lead guitar,' 'warm acoustic strumming forms the rhythmic backbone,' 'driving, punchy drum beat,' 'smooth, ethereal synth pads creating an atmospheric wash'). If the profile indicates few prominent instruments, focus on the overall sonic texture described (e.g., 'a sparse, minimalist arrangement' or 'a dense, layered sound').
+
+4.  **Vocal Styling:** If the profile details vocal presence and characteristics, craft a description based on the provided gender/type, delivery style, and harmony information. Examples: 'features ethereal female soprano vocals with a breathy delivery,' 'a powerful male baritone lead, occasionally joined by tight backing harmonies,' 'a spoken-word narrative delivered with a calm intensity.' If vocals are described as absent or minimal, omit vocal descriptions in your output or explicitly state 'instrumental'.
+
+5.  **Tempo and Rhythm Feel:** Translate the described tempo (BPM) and rhythmic characteristics into a description of the rhythmic feel. Examples from the profile like "syncopated bass" or "driving beat" should inform phrases like: 'a laid-back, shuffling groove,' 'an energetic, driving pulse,' 'a slow, deliberate and stately pace,' 'features complex, syncopated rhythms that create a sense of urgency.' You can include the BPM if it's a defining characteristic, e.g., "upbeat 140 BPM techno".
+
+6.  **Structural and Dynamic Integration:** Subtly integrate the essence of the described song structure and dynamic profile into your overall description, rather than listing structural parts. For instance, if the analysis mentions "builds from quiet verses to an explosive chorus," you might write '...the piece gradually builds intensity from intimate verses into an expansive, anthemic chorus.' If a distinct instrumental solo is highlighted, you could mention '...highlighted by a searing mid-song guitar solo.' The aim is a flowing narrative reflecting the input description.
+
+7.  **Evocative Language and Cohesion:** Weave all these elements into a single, cohesive, and engaging paragraph. Employ rich adjectives and adverbs, inspired by the descriptive terms in the input profile, to paint a vivid musical picture for Suno. The description should convey a distinct 'vibe' or 'atmosphere' as characterized in the source text. Strive for language that is both musically informative and creatively inspiring.
+
+The final output MUST be a single paragraph. The total character count of this paragraph, including spaces and punctuation, MUST NOT exceed 1000 characters. Prioritize the most impactful musical descriptors from the provided profile to ensure conciseness while maintaining descriptive richness. Avoid filler words and be direct.
+
+If the input profile itself indicates conflicting information or ambiguity for certain aspects, reflect that nuance if possible within the character limit, or prioritize the elements described with the most confidence or emphasis in the profile. Use your understanding of musical conventions to ensure the description is coherent and musically sensible based on the provided text.
+
+Strive for a descriptive style similar to this example (though your content will be based on the input profile): 'A melancholic and atmospheric downtempo electronic track. It drifts on a slow, hypnotic beat, with deep sub-bass frequencies and shimmering, reverb-drenched synth pads creating a vast soundscape. Ethereal, wordless female vocal textures float above, adding to the introspective and slightly haunting mood. The piece evokes a sense of late-night contemplation in a rain-swept cityscape, with subtle dynamic shifts that prevent monotony without breaking the overall tranquil yet somber feel.'"""
+        }
     }
 
 
@@ -271,38 +413,60 @@ def main():
             print("\nError: Directory is required for processing audio files", file=sys.stderr)
             sys.exit(1)
             
-        # Determine which prompt to use
-        prompt_to_use = None
-        
-        # Use predefined prompt type if specified
-        if args.prompt_type:
-            prompt_to_use = get_predefined_prompts()[args.prompt_type]
-            print(f"Using predefined prompt: {args.prompt_type}")
-        # Use default prompt if no custom prompt is provided
-        elif args.prompt is None:
-            prompt_to_use = get_default_music_prompt()
-            print("Using default detailed music analysis prompt")
-        # Otherwise use the custom prompt
-        else:
-            prompt_to_use = args.prompt
-            
         # Process the directory
         directory_path = Path(args.directory)
         if not directory_path.exists() or not directory_path.is_dir():
             print(f"Error: Directory '{args.directory}' does not exist or is not a directory", file=sys.stderr)
             sys.exit(1)
         
-        results = process_directory(client, directory_path, prompt_to_use)
-        
-        # Output results
-        if not results:
-            print("No audio files found in the specified directory.")
-            return
-        
-        for filename, response in results:
-            print(f"\n--- {filename} ---")
-            print(response)
-            print("-" * (len(filename) + 8))
+        # Check if using two-step suno prompt
+        if args.prompt_type == "suno":
+            predefined_prompts = get_predefined_prompts()
+            step1_prompt = predefined_prompts["suno"]["step1"]
+            step2_prompt = predefined_prompts["suno"]["step2"]
+            print("Using predefined prompt: suno (two-step analysis)")
+            
+            results = process_directory_two_step(client, directory_path, step1_prompt, step2_prompt)
+            
+            # Output results for two-step processing
+            if not results:
+                print("No audio files found in the specified directory.")
+                return
+            
+            for filename, (step1_response, step2_response) in results:
+                print(f"\n--- {filename} ---")
+                print("=== DETAILED ANALYSIS ===")
+                print(step1_response)
+                print("\n=== SUNO STYLE PROMPT ===")
+                print(step2_response)
+                print("-" * (len(filename) + 8))
+        else:
+            # Determine which prompt to use for single-step processing
+            prompt_to_use = None
+            
+            # Use predefined prompt type if specified
+            if args.prompt_type:
+                prompt_to_use = get_predefined_prompts()[args.prompt_type]
+                print(f"Using predefined prompt: {args.prompt_type}")
+            # Use default prompt if no custom prompt is provided
+            elif args.prompt is None:
+                prompt_to_use = get_default_music_prompt()
+                print("Using default detailed music analysis prompt")
+            # Otherwise use the custom prompt
+            else:
+                prompt_to_use = args.prompt
+                
+            results = process_directory(client, directory_path, prompt_to_use)
+            
+            # Output results for single-step processing
+            if not results:
+                print("No audio files found in the specified directory.")
+                return
+            
+            for filename, response in results:
+                print(f"\n--- {filename} ---")
+                print(response)
+                print("-" * (len(filename) + 8))
 
 
 if __name__ == "__main__":
