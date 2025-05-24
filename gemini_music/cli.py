@@ -83,25 +83,31 @@ class GeminiMusicCLI:
         if args.prompt_type:
             prompt_type = PromptType(args.prompt_type)
             prompt_data = self.prompt_manager.get_prompt(prompt_type)
-            is_two_step = prompt_type == PromptType.SUNO
-            print(f"Using predefined prompt: {args.prompt_type}" + 
-                  (" (two-step analysis)" if is_two_step else ""))
-            return prompt_data, is_two_step
+            is_multi_step = prompt_type == PromptType.SUNO
+            steps = len(prompt_data) if isinstance(prompt_data, dict) else 1
+            step_desc = f" ({steps}-step analysis)" if is_multi_step else ""
+            print(f"Using predefined prompt: {args.prompt_type}{step_desc}")
+            return prompt_data, is_multi_step, steps
         elif args.prompt is None:
             prompt_data = self.prompt_manager.get_default_prompt()
             print("Using default detailed music analysis prompt")
-            return prompt_data, False
+            return prompt_data, False, 1
         else:
-            return args.prompt, False
+            return args.prompt, False, 1
     
-    def process_youtube_url(self, url: str, prompt_data, is_two_step: bool):
+    def process_youtube_url(self, url: str, prompt_data, is_multi_step: bool, steps: int):
         """Process a YouTube URL."""
         print(f"Downloading audio from YouTube URL: {url}")
         temp_audio_file = self.downloader.download_from_youtube(url)
         print(f"Downloaded to: {temp_audio_file}")
         
         try:
-            if is_two_step:
+            if is_multi_step and steps == 3:
+                step1_response, step2_response, step3_response = self.processor.process_file_three_step(
+                    temp_audio_file, prompt_data["step1"], prompt_data["step2"], prompt_data["step3"]
+                )
+                self._print_three_step_results(temp_audio_file.name, step1_response, step2_response, step3_response)
+            elif is_multi_step and steps == 2:
                 step1_response, step2_response = self.processor.process_file_two_step(
                     temp_audio_file, prompt_data["step1"], prompt_data["step2"]
                 )
@@ -116,9 +122,14 @@ class GeminiMusicCLI:
             if temp_audio_file.parent.exists():
                 temp_audio_file.parent.rmdir()
     
-    def process_single_file(self, file_path: Path, prompt_data, is_two_step: bool):
+    def process_single_file(self, file_path: Path, prompt_data, is_multi_step: bool, steps: int):
         """Process a single audio file."""
-        if is_two_step:
+        if is_multi_step and steps == 3:
+            step1_response, step2_response, step3_response = self.processor.process_file_three_step(
+                file_path, prompt_data["step1"], prompt_data["step2"], prompt_data["step3"]
+            )
+            self._print_three_step_results(file_path.name, step1_response, step2_response, step3_response)
+        elif is_multi_step and steps == 2:
             step1_response, step2_response = self.processor.process_file_two_step(
                 file_path, prompt_data["step1"], prompt_data["step2"]
             )
@@ -127,9 +138,20 @@ class GeminiMusicCLI:
             response = self.processor.process_file(file_path, prompt_data)
             self._print_single_result(file_path.name, response)
     
-    def process_directory(self, directory_path: Path, prompt_data, is_two_step: bool):
+    def process_directory(self, directory_path: Path, prompt_data, is_multi_step: bool, steps: int):
         """Process all audio files in a directory."""
-        if is_two_step:
+        if is_multi_step and steps == 3:
+            results = self.processor.process_directory_three_step(
+                directory_path, prompt_data["step1"], prompt_data["step2"], prompt_data["step3"]
+            )
+            
+            if not results:
+                print("No audio files found in the specified directory.")
+                return
+            
+            for filename, (step1_response, step2_response, step3_response) in results:
+                self._print_three_step_results(filename, step1_response, step2_response, step3_response)
+        elif is_multi_step and steps == 2:
             results = self.processor.process_directory_two_step(
                 directory_path, prompt_data["step1"], prompt_data["step2"]
             )
@@ -165,6 +187,17 @@ class GeminiMusicCLI:
         print(step2_response)
         print("-" * (len(filename) + 8))
     
+    def _print_three_step_results(self, filename: str, step1_response: str, step2_response: str, step3_response: str):
+        """Print results for three-step processing."""
+        print(f"\\n--- {filename} ---")
+        print("=== DETAILED ANALYSIS ===")
+        print(step1_response)
+        print("\\n=== SUNO STYLE PROMPT ===")
+        print(step2_response)
+        print("\\n=== SUNO LYRICS PROMPT ===")
+        print(step3_response)
+        print("-" * (len(filename) + 8))
+    
     def run(self, args=None):
         """Main entry point for the CLI application."""
         parser = self.create_argument_parser()
@@ -185,17 +218,17 @@ class GeminiMusicCLI:
             self.setup_gemini_client()
             
             # Determine prompt configuration
-            prompt_data, is_two_step = self.determine_prompt(args)
+            prompt_data, is_multi_step, steps = self.determine_prompt(args)
             
             # Detect input type and process accordingly
             input_type = self.validator.detect_input_type(args.input)
             
             if input_type == "youtube":
-                self.process_youtube_url(args.input, prompt_data, is_two_step)
+                self.process_youtube_url(args.input, prompt_data, is_multi_step, steps)
             elif input_type == "file":
-                self.process_single_file(Path(args.input), prompt_data, is_two_step)
+                self.process_single_file(Path(args.input), prompt_data, is_multi_step, steps)
             elif input_type == "directory":
-                self.process_directory(Path(args.input), prompt_data, is_two_step)
+                self.process_directory(Path(args.input), prompt_data, is_multi_step, steps)
                 
         except ConfigurationError as e:
             print(f"Configuration Error: {str(e)}", file=sys.stderr)

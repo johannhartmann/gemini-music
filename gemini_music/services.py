@@ -127,6 +127,30 @@ class AudioProcessor:
         except Exception as e:
             raise AudioProcessingError(f"Error processing file {file_path.name}: {str(e)}")
     
+    def process_file_three_step(self, file_path: Path, step1_prompt: str, step2_prompt: str, step3_prompt: str) -> Tuple[str, str, str]:
+        """Process a single audio file with a three-step prompt approach."""
+        try:
+            # Step 1: Process audio file with first prompt
+            step1_response = self.process_file(file_path, step1_prompt)
+            
+            # Step 2: Process the first response with second prompt (text-only)
+            step2_response = self.client.models.generate_content(
+                model=self.config.model,
+                contents=[step2_prompt + "\n\nAnalysis to convert:\n" + step1_response]
+            )
+            
+            # Step 3: Process the first response with third prompt (text-only)
+            step3_response = self.client.models.generate_content(
+                model=self.config.model,
+                contents=[step3_prompt + "\n\nAnalysis to convert:\n" + step1_response]
+            )
+            
+            return step1_response, step2_response.text, step3_response.text
+        except AudioProcessingError:
+            raise
+        except Exception as e:
+            raise AudioProcessingError(f"Error processing file {file_path.name}: {str(e)}")
+    
     def process_directory(self, directory: Path, prompt: str) -> List[Tuple[str, str]]:
         """Process all audio files in a directory."""
         results = []
@@ -155,6 +179,22 @@ class AudioProcessor:
                     # Log error but continue with other files
                     error_msg = f"Error: {str(e)}"
                     results.append((file_path.name, (error_msg, error_msg)))
+        
+        return results
+    
+    def process_directory_three_step(self, directory: Path, step1_prompt: str, step2_prompt: str, step3_prompt: str) -> List[Tuple[str, Tuple[str, str, str]]]:
+        """Process all audio files in a directory using three-step prompts."""
+        results = []
+        
+        for file_path in directory.iterdir():
+            if file_path.is_file() and file_path.suffix.lower() in AudioFormats.EXTENSIONS:
+                try:
+                    step1_response, step2_response, step3_response = self.process_file_three_step(file_path, step1_prompt, step2_prompt, step3_prompt)
+                    results.append((file_path.name, (step1_response, step2_response, step3_response)))
+                except AudioProcessingError as e:
+                    # Log error but continue with other files
+                    error_msg = f"Error: {str(e)}"
+                    results.append((file_path.name, (error_msg, error_msg, error_msg)))
         
         return results
 

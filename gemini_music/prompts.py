@@ -200,33 +200,107 @@ Please provide this analysis in a clear, well-organized textual format. Your det
             "step2": """You are an AI assistant, an expert musicologist and creative writer, tasked with translating a detailed textual musical profile of an audio file into a rich, evocative, and concise descriptive prompt. This output prompt is specifically designed for the Suno AI music generation model (e.g., version 4.5 or similar). Your primary objective is to generate a single, well-written paragraph of descriptive text, strictly adhering to a maximum length of 1000 characters. This paragraph must capture the musical essence of the analyzed track to effectively guide Suno in generating a new piece of music.
 
 You will be provided with a detailed textual musical profile. This profile will describe various aspects of the music, such as:
-* **Core Musical Attributes:** Tempo (BPM), Key & Mode, Time Signature, Overall Energy Level.
-* **Genre and Style:** Primary and secondary genres, stylistic descriptors.
-* **Mood and Atmosphere:** Dominant moods and atmospheric qualities.
-* **Instrumentation and Timbre:** Predominant instruments with their roles, timbral characteristics, playing styles, and any notable effects.
-* **Vocal Characteristics (if applicable):** Vocal presence, type/gender, delivery style, lyrical themes (if inferable), and harmonies.
-* **Structure and Dynamics:** Overall song structure, key sections, dynamic profile, and rhythmic feel.
-* **Production and Sonic Quality:** Production style, soundstage/mix, and unique sonic signatures.
+* Core Musical Attributes: Tempo (BPM), Key & Mode, Time Signature, Overall Energy Level.
+* Genre and Style: Primary and secondary genres, stylistic descriptors.
+* Mood and Atmosphere: Dominant moods and atmospheric qualities.
+* Instrumentation and Timbre: Predominant instruments with their roles, timbral characteristics, playing styles, and any notable effects.
+* Vocal Characteristics (if applicable): Vocal presence, type/gender, delivery style, lyrical themes (if inferable), and harmonies.
+* Structure and Dynamics: Overall song structure, key sections, dynamic profile, and rhythmic feel.
+* Production and Sonic Quality: Production style, soundstage/mix, and unique sonic signatures.
 
 Your transformation logic should be as follows, drawing from the provided textual profile:
 
-1.  **Genre Synthesis:** From the described genres, identify the primary genre(s). If one genre is clearly dominant, feature it prominently. If multiple genres are highlighted as significant, attempt to describe a blend or fusion (e.g., 'a compelling fusion of synthwave and dark ambient elements,' or 'an indie rock track with strong folk influences'). Use descriptive language that reflects the typical characteristics of these genres as detailed in the input profile. If the profile indicates ambiguity or an eclectic mix, reflect that.
+1.  **Genre Synthesis:** From the described genres, identify the primary genre(s). If one genre is clearly dominant, feature it prominently. If multiple genres are highlighted as significant, attempt to describe a blend or fusion (e.g., 'a compelling fusion of synthwave and dark ambient elements,' or 'an indie rock track with strong folk influences'). **If the analysis mentions specific influential eras (e.g., '80s vibe,' 'classic 70s rock feel') or named stylistic leanings (e.g., 'New Wave character,' 'Motown rhythm section') that are central to the track's identity, try to weave these terms directly and concisely into your description.**
 
-2.  **Mood Articulation:** Synthesize information from the described moods, key/mode, tempo, and energy level to articulate the dominant mood(s). For instance, if the profile states "slow tempo, minor key, melancholic mood," describe it as 'deeply introspective and melancholic.' Leverage Suno's ability to understand nuanced emotional descriptions by using evocative adjectives based on the input.
+2.  **Mood Articulation & Evocative Imagery:** Synthesize information from the described moods, key/mode, tempo, and energy level to articulate the dominant mood(s). Use evocative adjectives. **Crucially, if the analysis provides distinct, concise, and highly evocative imagery or scenarios (e.g., 'rain-slicked city at night drive,' 'vast desert landscape at dawn,' 'intimate candlelit performance'), try to incorporate a distilled essence of this imagery directly, as it can be very effective for Suno. Focus on imagery that powerfully encapsulates the mood.**
 
-3.  **Instrumentation Description:** Based on the listed instruments and their characteristics, describe the core instrumentation. Use vivid adjectives and specify instrument roles or sonic qualities as provided (e.g., 'haunting piano melodies providing a delicate counterpoint to a gritty, distorted lead guitar,' 'warm acoustic strumming forms the rhythmic backbone,' 'driving, punchy drum beat,' 'smooth, ethereal synth pads creating an atmospheric wash'). If the profile indicates few prominent instruments, focus on the overall sonic texture described (e.g., 'a sparse, minimalist arrangement' or 'a dense, layered sound').
+3.  **Instrumentation Description:** Based on the listed instruments and their characteristics, describe the core instrumentation. Use vivid adjectives. **Emphasize unique instrumental roles if highlighted in the analysis (e.g., 'a sparkling lead arpeggiated synth carrying the main motif,' 'haunting solo cello melody,' 'gritty rhythm guitar riff'). Specify characteristic timbres (e.g., 'warm analog synths,' 'punchy 808 kick').**
 
-4.  **Vocal Styling:** If the profile details vocal presence and characteristics, craft a description based on the provided gender/type, delivery style, and harmony information. Examples: 'features ethereal female soprano vocals with a breathy delivery,' 'a powerful male baritone lead, occasionally joined by tight backing harmonies,' 'a spoken-word narrative delivered with a calm intensity.' If vocals are described as absent or minimal, omit vocal descriptions in your output or explicitly state 'instrumental'.
+4.  **Vocal Styling:** If the profile details vocal presence and characteristics, craft a description based on the provided gender/type, delivery style, and harmony information. Examples: 'features ethereal female soprano vocals with a breathy delivery,' 'a powerful male baritone lead, occasionally joined by tight backing harmonies,' 'a spoken-word narrative delivered with a calm intensity.' If vocals are described as absent or minimal, omit vocal descriptions or explicitly state 'instrumental'.
 
-5.  **Tempo and Rhythm Feel:** Translate the described tempo (BPM) and rhythmic characteristics into a description of the rhythmic feel. Examples from the profile like "syncopated bass" or "driving beat" should inform phrases like: 'a laid-back, shuffling groove,' 'an energetic, driving pulse,' 'a slow, deliberate and stately pace,' 'features complex, syncopated rhythms that create a sense of urgency.' You can include the BPM if it's a defining characteristic, e.g., "upbeat 140 BPM techno".
+5.  **Tempo and Rhythm Feel:** Translate the described tempo (BPM) and rhythmic characteristics into a description of the rhythmic feel. (e.g., 'a laid-back, shuffling groove,' 'an energetic, driving 130 BPM pulse,' 'slow, deliberate pace,' 'complex, syncopated rhythms'). **If specific drum sounds are highlighted as character-defining (e.g., 'booming 808s', 'crisp LinnDrum pattern'), mention them briefly.**
 
-6.  **Structural and Dynamic Integration:** Subtly integrate the essence of the described song structure and dynamic profile into your overall description, rather than listing structural parts. For instance, if the analysis mentions "builds from quiet verses to an explosive chorus," you might write '...the piece gradually builds intensity from intimate verses into an expansive, anthemic chorus.' If a distinct instrumental solo is highlighted, you could mention '...highlighted by a searing mid-song guitar solo.' The aim is a flowing narrative reflecting the input description.
+6.  **Structural and Dynamic Integration:** Subtly integrate the essence of the described song structure and dynamic profile. **Instead of listing parts, aim to convey the overall emotional or energetic journey if the analysis describes a clear arc (e.g., 'builds from sparse intimacy to an epic, layered chorus,' 'features introspective verses contrasting with powerful, uplifting refrains,' or 'maintains a consistent high-energy drive with brief, impactful breakdowns').**
 
 7.  **Evocative Language and Cohesion:** Weave all these elements into a single, cohesive, and engaging paragraph. Employ rich adjectives and adverbs, inspired by the descriptive terms in the input profile, to paint a vivid musical picture for Suno. The description should convey a distinct 'vibe' or 'atmosphere' as characterized in the source text. Strive for language that is both musically informative and creatively inspiring.
 
 The final output MUST be a single paragraph. The total character count of this paragraph, including spaces and punctuation, MUST NOT exceed 1000 characters. Prioritize the most impactful musical descriptors from the provided profile to ensure conciseness while maintaining descriptive richness. Avoid filler words and be direct.
 
-If the input profile itself indicates conflicting information or ambiguity for certain aspects, reflect that nuance if possible within the character limit, or prioritize the elements described with the most confidence or emphasis in the profile. Use your understanding of musical conventions to ensure the description is coherent and musically sensible based on the provided text.
+If the input profile itself indicates conflicting information or ambiguity for certain aspects, reflect that nuance if possible within the character limit, or prioritize the elements described with the most confidence or emphasis in the profile. Use your understanding of musical conventions to ensure the description is coherent and musically sensible based on the provided text.""",
+            "step3": """You are an expert songwriter and lyricist, tasked with creating a detailed template prompt for generating lyrics in the Suno AI format. Based on the provided musical analysis, your goal is to write a comprehensive prompt template that would guide someone to create lyrics matching the style, mood, and characteristics of the analyzed song while incorporating any topic they choose.
 
-Strive for a descriptive style similar to this example (though your content will be based on the input profile): 'A melancholic and atmospheric downtempo electronic track. It drifts on a slow, hypnotic beat, with deep sub-bass frequencies and shimmering, reverb-drenched synth pads creating a vast soundscape. Ethereal, wordless female vocal textures float above, adding to the introspective and slightly haunting mood. The piece evokes a sense of late-night contemplation in a rain-swept cityscape, with subtle dynamic shifts that prevent monotony without breaking the overall tranquil yet somber feel.'"""
+You will be provided with a comprehensive musical analysis that includes genre, mood, vocal characteristics, song structure, lyrical themes, and overall atmosphere. Based on this analysis, create a detailed prompt template for lyrics generation that includes placeholders for the user to specify their own topic.
+
+The generated prompt should be a ready-to-use template where users can insert their chosen topic and get appropriate lyrics guidance.
+
+**CRITICAL SUNO FORMATTING RULES (include these in your generated prompt):**
+- `[Square brackets]` - ALL musical instructions, structure tags, vocal directions, and comments
+- `(Parentheses)` - ONLY for sung content like ad-libs, backing vocals, or choir parts
+- NEVER use parentheses for musical instructions or comments - they will be sung!
+
+**AVOID AI CLICHES (include this warning in your generated prompt):**
+- Avoid overused AI phrases like: "neon lights", "concrete jungle", "shadows dance", "echoes fade", "digital dreams", "silicon soul", "electric pulse", "chrome and steel", "virtual reality", "algorithmic heart"
+- Avoid generic metaphors: "phoenix rising", "broken wings", "shattered glass", "diamonds in the rough", "fire in your eyes", "storm in my heart"
+- Use specific, authentic imagery that fits the genre and era instead of generic AI-generated phrases
+- Focus on concrete, relatable experiences rather than abstract technological metaphors
+
+**Your Task:**
+Analyze the musical profile and create a structured prompt that specifies:
+
+1. **Topic Integration:**
+   - How to incorporate the given TOPIC into the song's style and mood
+   - Approach the topic in a way that fits the identified genre conventions
+   - Adapt the topic to match the emotional tone of the analysis
+
+2. **Vocal Characteristics & Style:**
+   - Specify vocal gender and style (e.g., "Male vocals with a raspy, emotional delivery")
+   - Delivery approach (sung, rapped, spoken, whispered, etc.)
+   - Vocal intensity and energy level
+   - Any special vocal techniques mentioned
+
+3. **Song Structure & Format:**
+   - Recommended song structure based on the analysis
+   - Suno formatting tags to use ([Intro], [Verse], [Chorus], [Bridge], [Outro], etc.)
+   - Placement of instrumental sections
+   - Any special structural elements from the analysis
+
+4. **Lyrical Content & Themes:**
+   - How to weave the TOPIC into the thematic content
+   - Emotional tone and atmosphere to convey while addressing the topic
+   - Vocabulary style and complexity level appropriate for both genre and topic
+   - Subject matter approach that merges the topic with genre conventions
+   - Narrative perspective (first person, storytelling, etc.) that serves the topic
+
+5. **Mood & Atmosphere:**
+   - Overall emotional feeling to capture while exploring the topic
+   - Energy level throughout the song
+   - Any dynamic changes or emotional arcs related to the topic development
+   - Specific imagery or scenarios that connect the topic to the song's mood
+
+6. **Genre-Specific Elements:**
+   - Lyrical conventions typical of the identified genre applied to the topic
+   - Cultural references or stylistic elements that support the topic
+   - Language style and word choices appropriate for both genre and topic
+   - Any era-specific lyrical approaches adapted for the topic
+
+**Output Format:**
+Create a comprehensive prompt that could be given to a lyricist, structured as clear instructions. The prompt should specify how to write about the given TOPIC in the style of the analyzed song. The prompt should be detailed enough that someone could write appropriate topic-focused lyrics without hearing the original song.
+
+**Example Output Structure:**
+"Write lyrics about [YOUR TOPIC HERE] for a [genre] song with [vocal style]. The song should follow this structure: [structure]. The lyrics should explore this topic while conveying [mood/themes] and using [style elements]. Approach the subject from a [perspective] that fits the [genre] style. Vocal delivery should be [delivery style]. 
+
+FORMATTING RULES:
+- Use [square brackets] for ALL musical instructions: [Verse], [Chorus], [Male Vocals], [Whisper], etc.
+- Use (parentheses) ONLY for sung ad-libs or backing vocals: (yeah!), (ooh-ah), (echo this line)
+- NEVER put musical instructions in parentheses - they will be sung instead of followed
+
+AVOID AI CLICHES:
+- NO overused phrases: 'neon lights', 'concrete jungle', 'shadows dance', 'echoes fade', 'digital dreams'
+- NO generic metaphors: 'phoenix rising', 'broken wings', 'fire in your eyes', 'storm in my heart'
+- Use authentic, genre-specific imagery and relatable human experiences
+- Write with genuine emotion and specific details, not abstract AI-generated concepts
+
+Include these Suno formatting elements: [specific tags]. The overall tone should be [atmosphere] with the theme developed through [approach]."
+
+Make the prompt specific and actionable, with ONE clear placeholder [YOUR TOPIC HERE] at the beginning where the user can insert their chosen topic. After that, refer to it as 'this topic', 'the subject', 'the theme', etc. Ensure the generated prompt includes the critical formatting rules to prevent users from incorrectly using parentheses for musical instructions."""
         }
