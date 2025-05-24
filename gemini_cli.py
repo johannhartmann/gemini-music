@@ -10,10 +10,13 @@ analysis and song evaluation with scoring.
 import os
 import sys
 import argparse
+import tempfile
+import re
 from pathlib import Path
 from typing import List, Optional
 from google import genai
 from google.genai.types import HttpOptions
+import yt_dlp
 
 
 def process_audio_file(client, file_path: Path, prompt: str) -> str:
@@ -342,6 +345,77 @@ Strive for a descriptive style similar to this example (though your content will
     }
 
 
+def download_audio_from_youtube(url: str) -> Path:
+    """
+    Download audio from YouTube URL to a temporary file using yt-dlp.
+    
+    Args:
+        url: YouTube URL
+        
+    Returns:
+        Path to the downloaded audio file
+    """
+    try:
+        # Create a temporary directory
+        temp_dir = tempfile.mkdtemp()
+        
+        # Configure yt-dlp options for audio-only download
+        ydl_opts = {
+            'format': 'bestaudio[abr<=128]/best[abr<=128]',
+            'outtmpl': os.path.join(temp_dir, '%(title)s.%(ext)s'),
+            'postprocessors': [{
+                'key': 'FFmpegExtractAudio',
+                'preferredcodec': 'mp3',
+                'preferredquality': '128',
+            }],
+            'quiet': False,
+            'no_warnings': False,
+            'socket_timeout': 60,
+            'retries': 3,
+            'fragment_retries': 3,
+            'http_headers': {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+            }
+        }
+        
+        # Download the audio
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            info = ydl.extract_info(url, download=True)
+            filename = ydl.prepare_filename(info)
+            
+            # yt-dlp might change the extension, so find the actual file
+            temp_path = Path(temp_dir)
+            downloaded_files = list(temp_path.glob('*'))
+            
+            if not downloaded_files:
+                raise Exception("No file was downloaded")
+                
+            return downloaded_files[0]
+        
+    except Exception as e:
+        raise Exception(f"Failed to download YouTube audio: {str(e)}")
+
+
+def is_youtube_url(url: str) -> bool:
+    """
+    Check if a string is a YouTube URL.
+    
+    Args:
+        url: String to check
+        
+    Returns:
+        True if it's a YouTube URL, False otherwise
+    """
+    youtube_patterns = [
+        r'(?:https?://)(?:www\.)?youtube\.com/watch\?v=([a-zA-Z0-9_-]+)',
+        r'(?:https?://)(?:www\.)?youtu\.be/([a-zA-Z0-9_-]+)',
+        r'(?:https?://)(?:www\.)?youtube\.com/embed/([a-zA-Z0-9_-]+)',
+        r'(?:https?://)(?:www\.)?youtube\.com/v/([a-zA-Z0-9_-]+)'
+    ]
+    
+    return any(re.match(pattern, url) for pattern in youtube_patterns)
+
+
 def get_default_music_prompt():
     """Returns a detailed default prompt for music analysis."""
     return get_predefined_prompts()["analyze"]
@@ -363,9 +437,9 @@ def main():
     # Processing arguments
     proc_group = parser.add_argument_group("Processing Options")
     proc_group.add_argument(
-        "directory", 
+        "input", 
         nargs="?",
-        help="Directory containing audio files to process"
+        help="Directory containing audio files to process, or YouTube URL"
     )
     proc_group.add_argument(
         "prompt", 
@@ -407,17 +481,66 @@ def main():
     
     # Process files if not just showing information and directory is provided
     if not args.list_prompts:
-        # Require directory for processing
-        if not args.directory:
+        # Require input for processing
+        if not args.input:
             parser.print_help()
-            print("\nError: Directory is required for processing audio files", file=sys.stderr)
+            print("\nError: Directory or YouTube URL is required for processing audio files", file=sys.stderr)
             sys.exit(1)
             
-        # Process the directory
-        directory_path = Path(args.directory)
-        if not directory_path.exists() or not directory_path.is_dir():
-            print(f"Error: Directory '{args.directory}' does not exist or is not a directory", file=sys.stderr)
-            sys.exit(1)
+        # Check if input is a YouTube URL or directory
+        if is_youtube_url(args.input):
+            # Process YouTube URL
+            try:
+                print(f"Downloading audio from YouTube URL: {args.input}")
+                temp_audio_file = download_audio_from_youtube(args.input)
+                print(f"Downloaded to: {temp_audio_file}")
+                
+                # Determine which prompt to use
+                if args.prompt_type == "suno":
+                    predefined_prompts = get_predefined_prompts()
+                    step1_prompt = predefined_prompts["suno"]["step1"]
+                    step2_prompt = predefined_prompts["suno"]["step2"]
+                    print("Using predefined prompt: suno (two-step analysis)")
+                    
+                    step1_response, step2_response = process_audio_file_two_step(client, temp_audio_file, step1_prompt, step2_prompt)
+                    
+                    print(f"\n--- {temp_audio_file.name} ---")
+                    print("=== DETAILED ANALYSIS ===")
+                    print(step1_response)
+                    print("\n=== SUNO STYLE PROMPT ===")
+                    print(step2_response)
+                    print("-" * (len(temp_audio_file.name) + 8))
+                else:
+                    # Use predefined prompt type if specified
+                    if args.prompt_type:
+                        prompt_to_use = get_predefined_prompts()[args.prompt_type]
+                        print(f"Using predefined prompt: {args.prompt_type}")
+                    # Use default prompt if no custom prompt is provided
+                    elif args.prompt is None:
+                        prompt_to_use = get_default_music_prompt()
+                        print("Using default detailed music analysis prompt")
+                    # Otherwise use the custom prompt
+                    else:
+                        prompt_to_use = args.prompt
+                    
+                    response = process_audio_file(client, temp_audio_file, prompt_to_use)
+                    print(f"\n--- {temp_audio_file.name} ---")
+                    print(response)
+                    print("-" * (len(temp_audio_file.name) + 8))
+                
+                # Clean up temporary file
+                temp_audio_file.unlink()
+                temp_audio_file.parent.rmdir()
+                
+            except Exception as e:
+                print(f"Error processing YouTube URL: {str(e)}", file=sys.stderr)
+                sys.exit(1)
+        else:
+            # Process as directory
+            directory_path = Path(args.input)
+            if not directory_path.exists() or not directory_path.is_dir():
+                print(f"Error: '{args.input}' is not a valid directory or YouTube URL", file=sys.stderr)
+                sys.exit(1)
         
         # Check if using two-step suno prompt
         if args.prompt_type == "suno":
