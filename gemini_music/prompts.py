@@ -245,6 +245,12 @@ You will be provided with a comprehensive musical analysis that includes genre, 
 
 The generated prompt should be a ready-to-use template where users can insert their chosen topic and get appropriate lyrics guidance.
 
+**LANGUAGE PRESERVATION:**
+- FIRST, identify the language of the original lyrics from the musical analysis
+- The generated lyrics template MUST specify that lyrics should be written in the SAME LANGUAGE as the original song
+- If the original song contains multiple languages, note this and specify the primary language for the template
+- If the language cannot be determined from the analysis, default to English but note this uncertainty
+
 **CRITICAL SUNO FORMATTING RULES (include these in your generated prompt):**
 - `[Square brackets]` - ALL musical instructions, structure tags, vocal directions, and comments
 - `(Parentheses)` - ONLY for sung content like ad-libs, backing vocals, or choir parts
@@ -301,6 +307,11 @@ Create a comprehensive prompt that could be given to a lyricist, structured as c
 **Example Output Structure:**
 "Write lyrics about [YOUR TOPIC HERE] for a [genre] song with [vocal style]. The song should follow this structure: [structure]. The lyrics should explore this topic while conveying [mood/themes] and using [style elements]. Approach the subject from a [perspective] that fits the [genre] style. Vocal delivery should be [delivery style]. 
 
+LANGUAGE REQUIREMENT:
+- Write the lyrics in [DETECTED LANGUAGE] to match the original song's language
+- Maintain authentic vocabulary and expressions native to this language
+- Use cultural references and idioms appropriate for [DETECTED LANGUAGE] speakers
+
 FORMATTING RULES:
 - Use [square brackets] for ALL musical instructions: [Verse], [Chorus], [Male Vocals], [Whisper], etc.
 - Use (parentheses) ONLY for sung ad-libs or backing vocals: (yeah!), (ooh-ah), (echo this line)
@@ -314,5 +325,11 @@ AVOID AI CLICHES:
 
 Include these Suno formatting elements: [specific tags]. The overall tone should be [atmosphere] with the theme developed through [approach]."
 
-Make the prompt specific and actionable, with ONE clear placeholder [YOUR TOPIC HERE] at the beginning where the user can insert their chosen topic. After that, refer to it as 'this topic', 'the subject', 'the theme', etc. Ensure the generated prompt includes the critical formatting rules to prevent users from incorrectly using parentheses for musical instructions."""
+Make the prompt specific and actionable, with ONE clear placeholder [YOUR TOPIC HERE] at the beginning where the user can insert their chosen topic. After that, refer to it as 'this topic', 'the subject', 'the theme', etc. 
+
+**CRITICAL REQUIREMENTS FOR YOUR GENERATED TEMPLATE:**
+1. MUST include language specification based on the detected language from the analysis
+2. MUST include the formatting rules to prevent users from incorrectly using parentheses for musical instructions
+3. MUST include anti-cliche guidelines to ensure authentic, genre-appropriate lyrics
+4. Should specify the exact language detected (e.g., "Write the lyrics in Spanish", "Write the lyrics in French", etc.)"""
         }
