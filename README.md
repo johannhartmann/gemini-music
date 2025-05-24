@@ -37,13 +37,30 @@ export GOOGLE_API_KEY="your-api-key-here"
 
 ## Usage
 
-Then run the CLI with a prompt and a directory containing audio files:
+### Processing Local Audio Files
+
+Run the CLI with a prompt and a directory containing audio files:
 
 ```bash
 gemini-music "Describe this audio clip" /path/to/audio/files
 ```
 
-You can also use predefined prompts:
+### Processing YouTube URLs
+
+You can also process audio directly from YouTube URLs:
+
+```bash
+# Process a YouTube video with a custom prompt
+gemini-music "Analyze the musical elements" "https://www.youtube.com/watch?v=VIDEO_ID"
+
+# Use predefined prompts with YouTube URLs
+gemini-music --prompt-type analyze "https://www.youtube.com/watch?v=VIDEO_ID"
+gemini-music --prompt-type suno "https://youtu.be/VIDEO_ID"
+```
+
+### Using Predefined Prompts
+
+You can use built-in prompts for both local files and YouTube URLs:
 
 ```bash
 # Use built-in analysis prompt
@@ -61,6 +78,8 @@ gemini-music --list-prompts
 
 ## Examples
 
+### Local Audio Files
+
 ```bash
 # Process all audio files in the current directory
 gemini-music "Transcribe and summarize this audio" ./
@@ -72,6 +91,19 @@ gemini-music "What genre of music is this?" ~/Music/samples
 mkdir -p single_file
 cp my_audio.mp3 single_file/
 gemini-music "Identify the instruments in this recording" single_file
+```
+
+### YouTube URLs
+
+```bash
+# Analyze a YouTube music video
+gemini-music "What instruments can you hear?" "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+
+# Generate Suno prompts from YouTube videos
+gemini-music --prompt-type suno "https://youtu.be/VIDEO_ID"
+
+# Evaluate a song from YouTube
+gemini-music --prompt-type eval "https://www.youtube.com/watch?v=VIDEO_ID"
 ```
 
 ## Requirements
