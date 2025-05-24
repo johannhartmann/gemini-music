@@ -11,13 +11,31 @@ A command-line interface for processing audio files with Google's Gemini AI.
 pip install -e .
 ```
 
-## Usage
+## Configuration
 
-First, set your Google API key as an environment variable:
+### Method 1: Using .env file (Recommended)
+
+Copy the sample environment file and add your API key:
+
+```bash
+cp .env.dist .env
+```
+
+Then edit `.env` and replace `your-google-api-key-here` with your actual Google API key:
+
+```
+GOOGLE_API_KEY=your-actual-api-key-here
+```
+
+### Method 2: Using environment variables
+
+Alternatively, set your Google API key as an environment variable:
 
 ```bash
 export GOOGLE_API_KEY="your-api-key-here"
 ```
+
+## Usage
 
 Then run the CLI with a prompt and a directory containing audio files:
 

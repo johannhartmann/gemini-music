@@ -5,6 +5,7 @@ import sys
 import argparse
 from pathlib import Path
 from typing import Optional
+from dotenv import load_dotenv
 
 from .config import PromptType, DEFAULT_AUDIO_CONFIG, DEFAULT_GEMINI_CONFIG
 from .services import AudioDownloader, AudioProcessor, InputValidator, create_gemini_client
@@ -68,6 +69,9 @@ class GeminiMusicCLI:
     
     def setup_gemini_client(self):
         """Initialize the Gemini client."""
+        # Load environment variables from .env file
+        load_dotenv()
+        
         api_key = os.environ.get("GOOGLE_API_KEY")
         if not api_key:
             raise ConfigurationError("GOOGLE_API_KEY environment variable not set")
