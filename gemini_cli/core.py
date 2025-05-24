@@ -439,7 +439,7 @@ def main():
     proc_group.add_argument(
         "input", 
         nargs="?",
-        help="Directory containing audio files to process, or YouTube URL"
+        help="Audio file, directory containing audio files, or YouTube URL to process"
     )
     proc_group.add_argument(
         "prompt", 
@@ -536,10 +536,54 @@ def main():
                 print(f"Error processing YouTube URL: {str(e)}", file=sys.stderr)
                 sys.exit(1)
         else:
+            # Process as directory or single file
+            input_path = Path(args.input)
+            if not input_path.exists():
+                print(f"Error: '{args.input}' does not exist", file=sys.stderr)
+                sys.exit(1)
+            
+            # Check if it's a single audio file
+            audio_extensions = {'.mp3', '.wav', '.m4a', '.flac', '.ogg', '.aac'}
+            if input_path.is_file() and input_path.suffix.lower() in audio_extensions:
+                # Process single file
+                if args.prompt_type == "suno":
+                    predefined_prompts = get_predefined_prompts()
+                    step1_prompt = predefined_prompts["suno"]["step1"]
+                    step2_prompt = predefined_prompts["suno"]["step2"]
+                    print("Using predefined prompt: suno (two-step analysis)")
+                    
+                    step1_response, step2_response = process_audio_file_two_step(client, input_path, step1_prompt, step2_prompt)
+                    
+                    print(f"\n--- {input_path.name} ---")
+                    print("=== DETAILED ANALYSIS ===")
+                    print(step1_response)
+                    print("\n=== SUNO STYLE PROMPT ===")
+                    print(step2_response)
+                    print("-" * (len(input_path.name) + 8))
+                else:
+                    # Use predefined prompt type if specified
+                    if args.prompt_type:
+                        prompt_to_use = get_predefined_prompts()[args.prompt_type]
+                        print(f"Using predefined prompt: {args.prompt_type}")
+                    # Use default prompt if no custom prompt is provided
+                    elif args.prompt is None:
+                        prompt_to_use = get_default_music_prompt()
+                        print("Using default detailed music analysis prompt")
+                    # Otherwise use the custom prompt
+                    else:
+                        prompt_to_use = args.prompt
+                    
+                    response = process_audio_file(client, input_path, prompt_to_use)
+                    print(f"\n--- {input_path.name} ---")
+                    print(response)
+                    print("-" * (len(input_path.name) + 8))
+                return
+            
             # Process as directory
-            directory_path = Path(args.input)
-            if not directory_path.exists() or not directory_path.is_dir():
-                print(f"Error: '{args.input}' is not a valid directory or YouTube URL", file=sys.stderr)
+            elif input_path.is_dir():
+                directory_path = input_path
+            else:
+                print(f"Error: '{args.input}' is not a valid audio file, directory, or YouTube URL", file=sys.stderr)
                 sys.exit(1)
         
             # Check if using two-step suno prompt
