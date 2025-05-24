@@ -70,3 +70,10 @@ The tool includes three sophisticated predefined prompts:
 - `analyze`: Comprehensive 10-section musical analysis covering genre, tempo, harmony, melody, instrumentation, dynamics, form, production, cultural context, and performance
 - `eval`: Pop song evaluation system that scores 8 criteria and outputs structured JSON results
 - `suno`: Two-step analysis that first performs detailed musical analysis, then converts it to a concise Suno AI-compatible prompt for music generation
+
+## Git Commit Guidelines
+
+- Write clear, concise commit messages that describe the changes made
+- Focus on what changed and why, not who made the changes
+- Do not include references to Claude, AI assistants, or automated tools in commit messages
+- Keep commit messages professional and focused on the technical changes

@@ -199,6 +199,16 @@ Mention any prominent audio effects used that significantly contribute to the so
 Please provide this analysis in a clear, well-organized textual format. Your detailed insights will be used to understand the essence of this music.""",
             "step2": """You are an AI assistant, an expert musicologist and creative writer, tasked with translating a detailed textual musical profile of an audio file into a rich, evocative, and concise descriptive prompt. This output prompt is specifically designed for the Suno AI music generation model (e.g., version 4.5 or similar). Your primary objective is to generate a single, well-written paragraph of descriptive text, strictly adhering to a maximum length of 1000 characters. This paragraph must capture the musical essence of the analyzed track to effectively guide Suno in generating a new piece of music.
 
+**CRITICAL: EMPHASIZE DISTINCTIVE ELEMENTS TO AVOID MAINSTREAM MUZAK**
+Your description must prioritize what makes this music UNIQUE and DIFFERENT from generic mainstream music. Pay special attention to:
+- Unconventional instruments or sounds mentioned in the analysis
+- Specific processing effects, distortion, or unusual timbres
+- Non-standard chord progressions or harmonic approaches
+- Distinctive rhythmic patterns or time signatures
+- Unique vocal techniques or delivery styles
+- Any experimental or non-commercial elements
+- Specific cultural or era references that distinguish the sound
+
 You will be provided with a detailed textual musical profile. This profile will describe various aspects of the music, such as:
 * Core Musical Attributes: Tempo (BPM), Key & Mode, Time Signature, Overall Energy Level.
 * Genre and Style: Primary and secondary genres, stylistic descriptors.
@@ -214,15 +224,17 @@ Your transformation logic should be as follows, drawing from the provided textua
 
 2.  **Mood Articulation & Evocative Imagery:** Synthesize information from the described moods, key/mode, tempo, and energy level to articulate the dominant mood(s). Use evocative adjectives. **Crucially, if the analysis provides distinct, concise, and highly evocative imagery or scenarios (e.g., 'rain-slicked city at night drive,' 'vast desert landscape at dawn,' 'intimate candlelit performance'), try to incorporate a distilled essence of this imagery directly, as it can be very effective for Suno. Focus on imagery that powerfully encapsulates the mood.**
 
-3.  **Instrumentation Description:** Based on the listed instruments and their characteristics, describe the core instrumentation. Use vivid adjectives. **Emphasize unique instrumental roles if highlighted in the analysis (e.g., 'a sparkling lead arpeggiated synth carrying the main motif,' 'haunting solo cello melody,' 'gritty rhythm guitar riff'). Specify characteristic timbres (e.g., 'warm analog synths,' 'punchy 808 kick').**
+3.  **Instrumentation Description:** Based on the listed instruments and their characteristics, describe the core instrumentation. Use vivid adjectives. **CRITICAL: Always mention any acoustic instruments, real drums, electric guitars with specific effects (distortion, overdrive, delay), analog synthesizers, or unconventional instruments identified in the analysis. These distinctive elements prevent Suno from defaulting to generic electronic sounds. Emphasize unique instrumental roles if highlighted in the analysis (e.g., 'heavily distorted electric guitar layers,' 'analog Moog bass with filter sweeps,' 'live drum kit with room reverb,' 'processed acoustic guitar arpeggios'). Specify characteristic timbres that distinguish the sound from typical mainstream production.**
 
 4.  **Vocal Styling:** If the profile details vocal presence and characteristics, craft a description based on the provided gender/type, delivery style, and harmony information. Examples: 'features ethereal female soprano vocals with a breathy delivery,' 'a powerful male baritone lead, occasionally joined by tight backing harmonies,' 'a spoken-word narrative delivered with a calm intensity.' If vocals are described as absent or minimal, omit vocal descriptions or explicitly state 'instrumental'.
 
-5.  **Tempo and Rhythm Feel:** Translate the described tempo (BPM) and rhythmic characteristics into a description of the rhythmic feel. (e.g., 'a laid-back, shuffling groove,' 'an energetic, driving 130 BPM pulse,' 'slow, deliberate pace,' 'complex, syncopated rhythms'). **If specific drum sounds are highlighted as character-defining (e.g., 'booming 808s', 'crisp LinnDrum pattern'), mention them briefly.**
+5.  **Tempo and Rhythm Feel:** Translate the described tempo (BPM) and rhythmic characteristics into a description of the rhythmic feel. (e.g., 'a laid-back, shuffling groove,' 'an energetic, driving 130 BPM pulse,' 'slow, deliberate pace,' 'complex, syncopated rhythms'). **If specific drum sounds are highlighted as character-defining (e.g., 'booming 808s', 'crisp LinnDrum pattern', 'live acoustic drums', 'compressed room sound'), mention them briefly.**
 
 6.  **Structural and Dynamic Integration:** Subtly integrate the essence of the described song structure and dynamic profile. **Instead of listing parts, aim to convey the overall emotional or energetic journey if the analysis describes a clear arc (e.g., 'builds from sparse intimacy to an epic, layered chorus,' 'features introspective verses contrasting with powerful, uplifting refrains,' or 'maintains a consistent high-energy drive with brief, impactful breakdowns').**
 
-7.  **Evocative Language and Cohesion:** Weave all these elements into a single, cohesive, and engaging paragraph. Employ rich adjectives and adverbs, inspired by the descriptive terms in the input profile, to paint a vivid musical picture for Suno. The description should convey a distinct 'vibe' or 'atmosphere' as characterized in the source text. Strive for language that is both musically informative and creatively inspiring.
+7.  **Distinctive Elements Priority:** **MOST IMPORTANT: Before finalizing your description, review the analysis for any elements that distinguish this music from typical mainstream pop/rock/electronic music. These might include: unusual time signatures, specific vintage equipment mentioned, cultural influences, experimental techniques, or distinctive production choices. These elements must be preserved in your description to prevent Suno from generating generic music.**
+
+8.  **Evocative Language and Cohesion:** Weave all these elements into a single, cohesive, and engaging paragraph. Employ rich adjectives and adverbs, inspired by the descriptive terms in the input profile, to paint a vivid musical picture for Suno. The description should convey a distinct 'vibe' or 'atmosphere' as characterized in the source text. Strive for language that is both musically informative and creatively inspiring.
 
 The final output MUST be a single paragraph. The total character count of this paragraph, including spaces and punctuation, MUST NOT exceed 1000 characters. Prioritize the most impactful musical descriptors from the provided profile to ensure conciseness while maintaining descriptive richness. Avoid filler words and be direct.
 
