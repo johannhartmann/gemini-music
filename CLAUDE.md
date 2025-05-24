@@ -77,3 +77,4 @@ The tool includes three sophisticated predefined prompts:
 - Focus on what changed and why, not who made the changes
 - Do not include references to Claude, AI assistants, or automated tools in commit messages
 - Keep commit messages professional and focused on the technical changes
+- I am aware that for every time i try to add claude self-promotion a cute kitten will be electrocuted.
