@@ -43,9 +43,9 @@ gemini-music --list-prompts
 
 ## Code Architecture
 
-The project has a dual-module structure with identical functionality:
-- `gemini_cli.py`: The main module containing all application logic
-- `gemini_cli/`: Package structure with the same code in `core.py` and exposed via `__init__.py`
+The project has a clean modular structure:
+- `gemini_music.py`: The main module entry point
+- `gemini_music/`: Package structure with clean architecture and separation of concerns
 
 ### Key Functions
 - `process_audio_file()`: Processes a single audio file

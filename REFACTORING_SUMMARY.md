@@ -12,13 +12,13 @@
 **Before:** Everything in one massive module
 **After:** Clean modular architecture
 ```
-gemini_cli/
+gemini_music/
 ├── cli.py              # CLI interface only
 ├── services.py         # Business logic services  
 ├── prompts.py          # Prompt management
 ├── config.py           # Configuration & constants
 ├── exceptions.py       # Custom error types
-└── refactored_core.py  # Clean entry point
+└── core.py             # Clean entry point
 ```
 
 ### 2. **Configuration Management**
@@ -143,19 +143,16 @@ class PromptType(Enum):
 
 Both interfaces provide identical functionality:
 
-### Original (still works)
+### Consistent naming throughout
 ```bash
-python gemini_cli.py --prompt-type analyze file.mp3
-```
-
-### Refactored (clean architecture)  
-```bash
-python gemini_cli_refactored.py --prompt-type analyze file.mp3
+python gemini_music.py --prompt-type analyze file.mp3
+# OR
+gemini-music --prompt-type analyze file.mp3
 ```
 
 ### Programmatic API (new capability)
 ```python
-from gemini_cli import AudioDownloader, AudioProcessor, PromptManager
+from gemini_music import AudioDownloader, AudioProcessor, PromptManager
 
 downloader = AudioDownloader()
 processor = AudioProcessor(client)

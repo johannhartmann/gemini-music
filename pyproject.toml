@@ -13,7 +13,7 @@ dependencies = [
 ]
 
 [project.scripts]
-gemini-music = "gemini_cli:main"
+gemini-music = "gemini_music:main"
 
 [tool.setuptools]
-packages = ["gemini_cli"]
+packages = ["gemini_music"]
