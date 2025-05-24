@@ -183,6 +183,15 @@ Identify the perceived vocal type/gender and range (e.g., female soprano, male b
 Detail the vocal delivery style (e.g., powerful, delicate, soulful, rapped, whispered, clean, gritty, auto-tuned).
 Mention the presence and style of any vocal harmonies.
 If discernible, note the language of the lyrics.
+Language Analysis (IMPORTANT - Required for all tracks with vocals):
+
+**LANGUAGE DETECTION IS CRITICAL:** Listen carefully to identify the specific language(s) used in the vocals. This is essential for preserving the original song's linguistic character in future generation.
+- Primary Language: Clearly identify the main language of the lyrics (e.g., English, Spanish, French, Japanese, Korean, Portuguese, Italian, German, etc.)
+- Secondary Languages: Note any additional languages present in the song
+- Mixed Language Usage: If the song switches between languages, describe the pattern (e.g., "verses in Spanish, chorus in English" or "primarily Korean with English phrases in the chorus")
+- Linguistic Style: Describe any notable accents, dialects, or regional variations that characterize the vocal delivery
+- Non-Vocal Elements: If the track is purely instrumental, explicitly state "Instrumental track - no vocals present"
+- Uncertain Cases: If the language cannot be clearly determined due to heavy effects, mumbling, or unclear pronunciation, note this uncertainty while providing your best assessment
 Song Structure and Form:
 
 Outline the main sections of the song (e.g., Intro, Verse, Chorus, Bridge, Solo, Outro).
@@ -196,7 +205,7 @@ Production Style and Effects:
 
 Describe the overall production quality and style (e.g., polished and modern, raw and vintage, lo-fi, minimalist, heavily layered).
 Mention any prominent audio effects used that significantly contribute to the sound (e.g., heavy reverb, delay on vocals, specific synth effects, noticeable compression, filter sweeps).
-Please provide this analysis in a clear, well-organized textual format. Your detailed insights will be used to understand the essence of this music.""",
+Please provide this analysis in a clear, well-organized textual format with clear section headings. Pay special attention to the Language Analysis section as this information is crucial for maintaining authenticity in subsequent music generation. Your detailed insights will be used to understand the essence of this music.""",
             "step2": """You are an AI assistant, an expert musicologist and creative writer, tasked with translating a detailed textual musical profile of an audio file into a rich, evocative, and concise descriptive prompt. This output prompt is specifically designed for the Suno AI music generation model (e.g., version 4.5 or similar). Your primary objective is to generate a single, well-written paragraph of descriptive text, strictly adhering to a maximum length of 1000 characters. This paragraph must capture the musical essence of the analyzed track to effectively guide Suno in generating a new piece of music.
 
 **CRITICAL: EMPHASIZE DISTINCTIVE ELEMENTS TO AVOID MAINSTREAM MUZAK**
